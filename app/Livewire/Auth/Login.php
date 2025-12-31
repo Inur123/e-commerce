@@ -14,7 +14,6 @@ class Login extends Component
 {
     public $email = '';
     public $password = '';
-    public $remember = false;
 
     protected $rules = [
         'email' => 'required|email',
@@ -32,7 +31,7 @@ class Login extends Component
             return;
         }
 
-        if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        if (Auth::attempt(['email' => $this->email, 'password' => $this->password])) {
             session()->regenerate();
 
             $user = Auth::user();

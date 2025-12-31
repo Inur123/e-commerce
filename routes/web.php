@@ -3,15 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
+use App\Livewire\Auth\Logout;
+use App\Livewire\Landingpage\Home;
 
 use App\Livewire\SuperAdmin\Dashboard as SuperAdminDashboard;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Seller\Dashboard as SellerDashboard;
 use App\Livewire\Buyer\Dashboard as BuyerDashboard;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', Home::class)->name('home');
 
 // AUTH ROUTES
 Route::get('/login', Login::class)->name('login');
@@ -19,6 +19,7 @@ Route::get('/register', Register::class)->name('register');
 
 // DASHBOARD ROUTES
 Route::middleware(['auth'])->group(function () {
+    Route::get('/logout', Logout::class)->name('logout');
 
     Route::middleware(['role:super_admin'])
         ->get('/super-admin/dashboard', SuperAdminDashboard::class)

@@ -13,6 +13,7 @@
 
 <div class="min-h-screen flex">
     buyer
+     <livewire:auth.logout />
 </div>
 
 @livewireScripts

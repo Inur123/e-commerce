@@ -13,6 +13,7 @@
 
 <div class="min-h-screen flex">
    admin
+   <livewire:auth.logout />
 </div>
 
 @livewireScripts
