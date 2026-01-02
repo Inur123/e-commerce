@@ -36,7 +36,7 @@ class Vouchers extends Component
     public string $applies_to = 'all';
     public string $status = 'active';
 
-    // Selected Products
+    // PRODUCTS
     public array $selectedProducts = [];
     public array $availableProducts = [];
 
@@ -51,7 +51,7 @@ class Vouchers extends Component
     }
 
     // =========================
-    // Actions
+    // ACTIONS
     // =========================
     public function create()
     {
@@ -95,9 +95,14 @@ class Vouchers extends Component
     {
         $this->action = 'index';
         $this->voucherId = null;
+        $this->deleteId = null;
         $this->resetForm();
+        $this->resetPage(); //  penting agar kembali ke page 1
     }
 
+    // =========================
+    // PRODUCTS
+    // =========================
     private function loadProducts()
     {
         $this->availableProducts = Product::where('seller_id', Auth::id())
@@ -108,69 +113,73 @@ class Vouchers extends Component
     }
 
     // =========================
-    // Save / Update
+    // SAVE / UPDATE
     // =========================
-    public function save()
-    {
-        $this->validate($this->rules());
+  public function save()
+{
+    $this->validate($this->rules());
 
-        $voucher = Voucher::create([
-            'owner_type' => 'seller',
-            'seller_id' => Auth::id(),
-            'code' => strtoupper($this->code),
-            'discount_type' => $this->discount_type,
-            'discount_value' => (int)$this->discount_value,
-            'max_usage' => (int)$this->max_usage,
-            'used_count' => 0,
-            'max_usage_per_user' => $this->max_usage_per_user ? (int)$this->max_usage_per_user : null,
-            'min_purchase' => $this->min_purchase ? (int)$this->min_purchase : null,
-            'start_date' => $this->start_date,
-            'end_date' => $this->end_date,
-            'applies_to' => $this->applies_to,
-            'status' => $this->status,
-        ]);
+    $voucher = Voucher::create([
+        'owner_type' => 'seller',
+        'seller_id' => Auth::id(),
+        'code' => strtoupper($this->code),
+        'discount_type' => $this->discount_type,
+        'discount_value' => (int)$this->discount_value,
+        'max_usage' => (int)$this->max_usage,
+        'used_count' => 0,
+        'max_usage_per_user' => $this->max_usage_per_user ? (int)$this->max_usage_per_user : null,
+        'min_purchase' => $this->min_purchase ? (int)$this->min_purchase : null,
+        'start_date' => $this->start_date,
+        'end_date' => $this->end_date,
+        'applies_to' => $this->applies_to,
+        'status' => $this->status,
+    ]);
 
-        if ($this->applies_to === 'selected') {
-            $voucher->products()->sync($this->selectedProducts);
-        }
-
-        session()->flash('success', 'Voucher berhasil dibuat.');
-        $this->back();
+    if ($this->applies_to === 'selected') {
+        $voucher->products()->sync($this->selectedProducts);
     }
+
+    session()->flash('success', 'Voucher berhasil dibuat ');
+
+    return $this->redirect(route('seller.vouchers'), navigate: true);
+}
+
 
     public function update()
-    {
-        $this->validate($this->rules(true));
+{
+    $this->validate($this->rules(true));
 
-        $v = Voucher::where('owner_type', 'seller')
-            ->where('seller_id', Auth::id())
-            ->findOrFail($this->voucherId);
+    $v = Voucher::where('owner_type', 'seller')
+        ->where('seller_id', Auth::id())
+        ->findOrFail($this->voucherId);
 
-        $v->update([
-            'code' => strtoupper($this->code),
-            'discount_type' => $this->discount_type,
-            'discount_value' => (int)$this->discount_value,
-            'max_usage' => (int)$this->max_usage,
-            'max_usage_per_user' => $this->max_usage_per_user ? (int)$this->max_usage_per_user : null,
-            'min_purchase' => $this->min_purchase ? (int)$this->min_purchase : null,
-            'start_date' => $this->start_date,
-            'end_date' => $this->end_date,
-            'applies_to' => $this->applies_to,
-            'status' => $this->status,
-        ]);
+    $v->update([
+        'code' => strtoupper($this->code),
+        'discount_type' => $this->discount_type,
+        'discount_value' => (int)$this->discount_value,
+        'max_usage' => (int)$this->max_usage,
+        'max_usage_per_user' => $this->max_usage_per_user ? (int)$this->max_usage_per_user : null,
+        'min_purchase' => $this->min_purchase ? (int)$this->min_purchase : null,
+        'start_date' => $this->start_date,
+        'end_date' => $this->end_date,
+        'applies_to' => $this->applies_to,
+        'status' => $this->status,
+    ]);
 
-        if ($this->applies_to === 'selected') {
-            $v->products()->sync($this->selectedProducts);
-        } else {
-            $v->products()->detach();
-        }
-
-        session()->flash('success', 'Voucher berhasil diperbarui.');
-        $this->back();
+    if ($this->applies_to === 'selected') {
+        $v->products()->sync($this->selectedProducts);
+    } else {
+        $v->products()->detach();
     }
 
+    session()->flash('success', 'Voucher berhasil diperbarui ');
+
+    return $this->redirect(route('seller.vouchers'), navigate: true);
+}
+
+
     // =========================
-    // Delete
+    // DELETE
     // =========================
     public function confirmDelete(string $id)
     {
@@ -178,32 +187,30 @@ class Vouchers extends Component
         $this->dispatch('swal:confirm-delete');
     }
 
-    public function delete()
-    {
-        if (!$this->deleteId) return;
+  public function delete()
+{
+    if (!$this->deleteId) return;
 
-        $v = Voucher::where('owner_type', 'seller')
-            ->where('seller_id', Auth::id())
-            ->findOrFail($this->deleteId);
+    $v = Voucher::where('owner_type', 'seller')
+        ->where('seller_id', Auth::id())
+        ->findOrFail($this->deleteId);
 
-        $v->delete();
+    $v->delete();
 
-        session()->flash('success', 'Voucher berhasil dihapus.');
-        $this->dispatch('swal:done', type: 'success', message: 'Voucher berhasil dihapus.');
+    session()->flash('success', 'Voucher berhasil dihapus ');
 
-        $this->deleteId = null;
-    }
+    return $this->redirect(route('seller.vouchers'), navigate: true);
+}
+
 
     // =========================
-    // Rules
+    // RULES
     // =========================
     private function rules(bool $isUpdate = false): array
     {
         return [
             'code' => [
-                'required',
-                'string',
-                'max:30',
+                'required', 'string', 'max:30',
                 $isUpdate
                     ? Rule::unique('vouchers', 'code')->ignore($this->voucherId)
                     : Rule::unique('vouchers', 'code')
@@ -217,7 +224,12 @@ class Vouchers extends Component
             'end_date' => ['required','date','after:start_date'],
             'applies_to' => ['required', Rule::in(['all','selected'])],
             'status' => ['required', Rule::in(['active','inactive'])],
-            'selectedProducts' => ['nullable','array'],
+
+            //  wajib jika applies_to = selected
+            'selectedProducts' => [
+                Rule::requiredIf(fn() => $this->applies_to === 'selected'),
+                'array'
+            ],
         ];
     }
 
@@ -237,7 +249,7 @@ class Vouchers extends Component
     }
 
     // =========================
-    // Render
+    // RENDER
     // =========================
     public function render()
     {

@@ -6,21 +6,6 @@
         <p class="text-xs sm:text-sm text-gray-600 mt-1">Kelola produk (harga, stok & status)</p>
     </div>
 
-    {{-- FLASH --}}
-    <div class="space-y-3">
-        @if (session()->has('success'))
-            <div class="p-3 sm:p-4 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm">
-                <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-            </div>
-        @endif
-
-        @if (session()->has('error'))
-            <div class="p-3 sm:p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
-                <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error') }}
-            </div>
-        @endif
-    </div>
-
     {{-- SUMMARY CARDS --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {{-- Total Produk --}}

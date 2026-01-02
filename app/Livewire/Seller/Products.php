@@ -28,7 +28,7 @@ class Products extends Component
 
     public string $name = '';
     public $price = null;
-    public $sale_price = null; // bisa '' dari input
+    public $sale_price = null;
     public $stock = 0;
     public string $status = 'active';
     public ?string $description = null;
@@ -37,9 +37,9 @@ class Products extends Component
     public ?string $thumbnailPath = null;
 
     public array $galleryUploads = [];
-    public array $existingImages = []; // edit: [id, image_path, url]
+    public array $existingImages = [];
 
-    public array $detailGallery = [];   // detail: array url
+    public array $detailGallery = [];
     public ?string $detailThumbnailUrl = null;
 
     protected $messages = [
@@ -49,14 +49,8 @@ class Products extends Component
         'thumbnailUpload.required' => 'Thumbnail wajib diupload',
     ];
 
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-    public function updatingFilterStatus()
-    {
-        $this->resetPage();
-    }
+    public function updatingSearch() { $this->resetPage(); }
+    public function updatingFilterStatus() { $this->resetPage(); }
 
     public function mount()
     {
@@ -65,21 +59,60 @@ class Products extends Component
         }
     }
 
+    // ======================
+    // Helper Block Delete Active
+    // ======================
     private function denyDeleteIfActive(Product $p): bool
     {
         if ($p->status === 'active') {
-            $msg = "Produk berstatus ACTIVE tidak bisa dihapus. Nonaktifkan dulu jika ingin menghapus.";
-            session()->flash('error', $msg);
-            $this->dispatch('swal:done', type: 'error', message: $msg);
+            session()->flash('error', "Produk berstatus ACTIVE tidak bisa dihapus. Nonaktifkan dulu jika ingin menghapus.");
+
+            // ✅ redirect supaya flash muncul
+            $this->deleteId = null;
+            $this->action = 'index';
+
+            $this->redirect(route('seller.products'), navigate: true);
             return true;
         }
+
         return false;
     }
 
+    // ======================
+    // ACTIONS
+    // ======================
     public function create()
     {
         $this->resetForm();
         $this->action = 'create';
+    }
+
+    public function edit(string $id)
+    {
+        $p = Product::where('seller_id', Auth::id())
+            ->with('images')
+            ->findOrFail($id);
+
+        $this->productId = $p->id;
+        $this->name = $p->name;
+        $this->price = $p->price;
+        $this->sale_price = $p->sale_price;
+        $this->stock = $p->stock;
+        $this->status = $p->status;
+        $this->description = $p->description;
+        $this->thumbnailPath = $p->thumbnail;
+
+        $this->existingImages = $p->images
+            ->sortBy('sort_order')
+            ->map(fn($img) => [
+                'id' => $img->id,
+                'image_path' => $img->image_path,
+                'url' => asset('storage/'.$img->image_path),
+            ])
+            ->values()
+            ->toArray();
+
+        $this->action = 'edit';
     }
 
     public function detail(string $id)
@@ -90,20 +123,29 @@ class Products extends Component
 
         $this->productId = $p->id;
 
-        // ✅ samakan URL dengan view: asset('storage/...')
         $this->detailThumbnailUrl = $p->thumbnail
-            ? asset('storage/' . $p->thumbnail)
+            ? asset('storage/'.$p->thumbnail)
             : 'https://via.placeholder.com/240';
 
         $this->detailGallery = $p->images
             ->sortBy('sort_order')
-            ->map(fn($img) => asset('storage/' . $img->image_path))
+            ->map(fn($img) => asset('storage/'.$img->image_path))
             ->values()
             ->toArray();
 
         $this->action = 'detail';
     }
 
+    public function back()
+    {
+        $this->resetForm();
+        $this->action = 'index';
+        $this->resetPage();
+    }
+
+    // ======================
+    // SAVE
+    // ======================
     public function save()
     {
         $this->validate($this->rulesCreate());
@@ -112,7 +154,6 @@ class Products extends Component
             ? $this->thumbnailUpload->store('products/thumbnails', 'public')
             : null;
 
-        // ✅ FIX: sale_price '' -> null
         $salePrice = ($this->sale_price === '' || $this->sale_price === null)
             ? null
             : (int) $this->sale_price;
@@ -131,47 +172,18 @@ class Products extends Component
         $this->storeGallery($product);
 
         session()->flash('success', 'Produk berhasil ditambahkan.');
-        $this->back();
+
+        return $this->redirect(route('seller.products'), navigate: true);
     }
 
-    public function edit(string $id)
-    {
-        $p = Product::where('seller_id', Auth::id())
-            ->with('images')
-            ->findOrFail($id);
-
-        // ✅ ACTIVE boleh edit (tidak di-guard)
-
-        $this->productId = $p->id;
-        $this->name = $p->name;
-        $this->price = $p->price;
-        $this->sale_price = $p->sale_price;
-        $this->stock = $p->stock;
-        $this->status = $p->status;
-        $this->description = $p->description;
-        $this->thumbnailPath = $p->thumbnail;
-
-        // ✅ samakan url image: asset('storage/...')
-        $this->existingImages = $p->images
-            ->sortBy('sort_order')
-            ->map(fn($img) => [
-                'id' => $img->id,
-                'image_path' => $img->image_path,
-                'url' => asset('storage/' . $img->image_path),
-            ])
-            ->values()
-            ->toArray();
-
-        $this->action = 'edit';
-    }
-
+    // ======================
+    // UPDATE
+    // ======================
     public function update()
     {
         $this->validate($this->rulesEdit());
 
         $p = Product::where('seller_id', Auth::id())->findOrFail($this->productId);
-
-        // ✅ ACTIVE boleh update (tidak di-guard)
 
         if ($this->thumbnailUpload) {
             if ($p->thumbnail && Storage::disk('public')->exists($p->thumbnail)) {
@@ -181,7 +193,6 @@ class Products extends Component
             $p->save();
         }
 
-        // ✅ FIX: sale_price '' -> null
         $salePrice = ($this->sale_price === '' || $this->sale_price === null)
             ? null
             : (int) $this->sale_price;
@@ -198,18 +209,18 @@ class Products extends Component
         $this->storeGallery($p);
 
         session()->flash('success', 'Produk berhasil diperbarui.');
-        $this->back();
+
+        return $this->redirect(route('seller.products'), navigate: true);
     }
 
+    // ======================
+    // DELETE
+    // ======================
     public function confirmDelete(string $id)
     {
         $p = Product::where('seller_id', Auth::id())->findOrFail($id);
 
-        // ✅ block delete kalau ACTIVE
-        if ($this->denyDeleteIfActive($p)) {
-            $this->deleteId = null;
-            return;
-        }
+        if ($this->denyDeleteIfActive($p)) return;
 
         $this->deleteId = $id;
         $this->dispatch('swal:confirm-delete');
@@ -223,66 +234,29 @@ class Products extends Component
             ->with('images')
             ->findOrFail($this->deleteId);
 
-        // ✅ Block delete kalau ACTIVE
-        if ($this->denyDeleteIfActive($p)) {
-            $this->deleteId = null;
-            return;
-        }
+        if ($this->denyDeleteIfActive($p)) return;
 
-        // ✅ Hapus file thumbnail
         if ($p->thumbnail && Storage::disk('public')->exists($p->thumbnail)) {
             Storage::disk('public')->delete($p->thumbnail);
         }
 
-        // ✅ Hapus file gallery
         foreach ($p->images as $img) {
             if (Storage::disk('public')->exists($img->image_path)) {
                 Storage::disk('public')->delete($img->image_path);
             }
-            $img->delete(); // hapus row image
+            $img->delete();
         }
 
-        // ✅ Delete produk
-        // FK order_items product_id -> NULL otomatis karena nullOnDelete()
         $p->delete();
 
         session()->flash('success', 'Produk berhasil dihapus.');
-        $this->dispatch('swal:done', type: 'success', message: 'Produk berhasil dihapus.');
 
-        $this->deleteId = null;
+        return $this->redirect(route('seller.products'), navigate: true);
     }
 
-
-    public function back()
-    {
-        $this->action = 'index';
-        $this->resetForm();
-    }
-
-    private function resetForm()
-    {
-        $this->reset([
-            'productId',
-            'deleteId',
-            'name',
-            'price',
-            'sale_price',
-            'stock',
-            'status',
-            'description',
-            'thumbnailUpload',
-            'thumbnailPath',
-            'galleryUploads',
-            'existingImages',
-            'detailGallery',
-            'detailThumbnailUrl',
-        ]);
-
-        $this->stock = 0;
-        $this->status = 'active';
-        $this->resetValidation();
-    }
-
+    // ======================
+    // Rules
+    // ======================
     private function rulesCreate(): array
     {
         return [
@@ -309,6 +283,27 @@ class Products extends Component
         ];
     }
 
+    // ======================
+    // Reset
+    // ======================
+    private function resetForm()
+    {
+        $this->reset([
+            'productId','deleteId',
+            'name','price','sale_price','stock','status','description',
+            'thumbnailUpload','thumbnailPath',
+            'galleryUploads','existingImages',
+            'detailGallery','detailThumbnailUrl',
+        ]);
+
+        $this->stock = 0;
+        $this->status = 'active';
+        $this->resetValidation();
+    }
+
+    // ======================
+    // Store Gallery
+    // ======================
     private function storeGallery(Product $p): void
     {
         if (empty($this->galleryUploads)) return;
@@ -325,6 +320,10 @@ class Products extends Component
 
         $this->galleryUploads = [];
     }
+
+    // ======================
+    // Render
+    // ======================
     public function render()
     {
         $filtered = Product::query()
@@ -334,10 +333,9 @@ class Products extends Component
 
         $products = (clone $filtered)->latest()->paginate(10);
 
-        // ✅ thumbnail_url disamakan dengan view: asset('storage/...')
         $products->getCollection()->transform(function ($p) {
             $p->thumbnail_url = $p->thumbnail
-                ? asset('storage/' . $p->thumbnail)
+                ? asset('storage/'.$p->thumbnail)
                 : 'https://via.placeholder.com/80';
             return $p;
         });
@@ -351,7 +349,7 @@ class Products extends Component
 
         return match ($this->action) {
             'create' => view('livewire.seller.product.create'),
-            'edit'   => view('livewire.seller.product.edit', [
+            'edit' => view('livewire.seller.product.edit', [
                 'product' => Product::where('seller_id', Auth::id())->findOrFail($this->productId),
             ]),
             'detail' => view('livewire.seller.product.detail', [
@@ -359,7 +357,7 @@ class Products extends Component
                 'thumbnailUrl' => $this->detailThumbnailUrl,
                 'galleryUrls' => $this->detailGallery,
             ]),
-            default  => view('livewire.seller.product.index', [
+            default => view('livewire.seller.product.index', [
                 'products' => $products,
                 'stats' => $stats,
             ]),

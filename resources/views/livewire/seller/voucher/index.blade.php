@@ -6,15 +6,6 @@
         <p class="text-xs sm:text-sm text-gray-600 mt-1">Kelola voucher diskon khusus toko kamu</p>
     </div>
 
-    {{-- FLASH --}}
-    <div class="space-y-3">
-        @if (session()->has('success'))
-            <div class="p-3 sm:p-4 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm">
-                <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-            </div>
-        @endif
-    </div>
-
     {{-- SUMMARY --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div class="bg-white rounded-2xl shadow p-4">
