@@ -10,6 +10,7 @@ use Livewire\Attributes\Layout;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB; //  tambah ini
 
 #[Layout('components.layouts.super-admin')]
 #[Title('Manajemen User')]
@@ -20,15 +21,12 @@ class Users extends Component
     public string $action = 'index';
     public ?string $userId = null;
 
-    // ✅ untuk konfirmasi hapus
     public ?string $deleteId = null;
 
-    // list
     public string $search = '';
     public string $filterRole = '';
     public string $filterStatus = '';
 
-    // form
     public string $name = '';
     public string $email = '';
     public string $password = '';
@@ -53,18 +51,9 @@ class Users extends Component
         }
     }
 
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-    public function updatingFilterRole()
-    {
-        $this->resetPage();
-    }
-    public function updatingFilterStatus()
-    {
-        $this->resetPage();
-    }
+    public function updatingSearch() { $this->resetPage(); }
+    public function updatingFilterRole() { $this->resetPage(); }
+    public function updatingFilterStatus() { $this->resetPage(); }
 
     public function create()
     {
@@ -125,16 +114,12 @@ class Users extends Component
         $this->back();
     }
 
-    // ✅ dipanggil dari tombol hapus di index
     public function confirmDelete(string $id): void
     {
         $this->deleteId = $id;
-
-        // trigger sweetalert di index (JS listener ada di index)
         $this->dispatch('swal:confirm-delete');
     }
 
-    // ✅ method delete kamu tetap dipakai, tapi id ambil dari deleteId
     public function delete(): void
     {
         if (!$this->deleteId) return;
@@ -150,12 +135,8 @@ class Users extends Component
         User::where('id', $this->deleteId)->delete();
 
         session()->flash('success', 'User berhasil dihapus.');
-
         $this->dispatch('swal:done', type: 'success', message: 'User berhasil dihapus.');
         $this->deleteId = null;
-
-        // optional biar tetap di page yg valid kalau item terakhir kehapus
-        // $this->resetPage();
     }
 
     public function back()
@@ -201,15 +182,28 @@ class Users extends Component
 
     public function render()
     {
-        $users = User::query()
+        // query utama (mengikuti search + filter)
+        $filtered = User::query()
             ->when($this->search, function ($q) {
                 $s = '%' . $this->search . '%';
                 $q->where(fn($qq) => $qq->where('name', 'like', $s)->orWhere('email', 'like', $s));
             })
             ->when($this->filterRole, fn($q) => $q->where('role', $this->filterRole))
-            ->when($this->filterStatus, fn($q) => $q->where('status', $this->filterStatus))
-            ->latest()
-            ->paginate(10);
+            ->when($this->filterStatus, fn($q) => $q->where('status', $this->filterStatus));
+
+        $users = (clone $filtered)->latest()->paginate(10);
+
+        //  statistik untuk card
+        $stats = [
+            'total' => (clone $filtered)->count(),
+            'active' => (clone $filtered)->where('status', 'active')->count(),
+            'inactive' => (clone $filtered)->where('status', 'inactive')->count(),
+            'roles' => (clone $filtered)
+                ->select('role', DB::raw('count(*) as total'))
+                ->groupBy('role')
+                ->pluck('total', 'role')
+                ->toArray(),
+        ];
 
         return match ($this->action) {
             'create' => view('livewire.super-admin.user.create'),
@@ -218,6 +212,7 @@ class Users extends Component
             ]),
             default  => view('livewire.super-admin.user.index', [
                 'users' => $users,
+                'stats' => $stats,
             ]),
         };
     }

@@ -27,9 +27,17 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class, 'order_id');
     }
 
+    // ✅ FIX: produk bisa null karena sudah dihapus
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id')
+            ->withDefault([
+                'name' => '[Produk sudah dihapus]',
+                'thumbnail' => null,
+                'price' => 0,
+                'sale_price' => null,
+                'status' => 'inactive',
+            ]);
     }
 
     public function seller(): BelongsTo

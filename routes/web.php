@@ -13,6 +13,9 @@ use App\Livewire\Buyer\Dashboard as BuyerDashboard;
 
 use App\Livewire\SuperAdmin\Users as SuperAdminUsers; // ✅ tambah ini
 
+
+use App\Livewire\Seller\Products as SellerProducts;
+
 Route::get('/', Home::class)->name('home');
 
 // AUTH ROUTES
@@ -34,8 +37,19 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])
         ->get('/admin/dashboard', AdminDashboard::class)->name('admin.dashboard');
 
-    Route::middleware(['role:seller'])
-        ->get('/seller/dashboard', SellerDashboard::class)->name('seller.dashboard');
+   Route::middleware(['role:admin'])
+        ->get('/admin/dashboard', SellerDashboard::class)
+        ->name('admin.dashboard');
+
+    // ✅ SELLER
+    Route::middleware(['role:seller'])->group(function () {
+        Route::get('/seller/dashboard', SellerDashboard::class)
+            ->name('seller.dashboard');
+
+        // CRUD PRODUCT
+        Route::get('/seller/products', SellerProducts::class)
+            ->name('seller.products');
+    });
 
     Route::middleware(['role:buyer'])
         ->get('/buyer/dashboard', BuyerDashboard::class)->name('buyer.dashboard');

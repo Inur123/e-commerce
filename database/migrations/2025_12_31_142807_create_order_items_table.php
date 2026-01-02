@@ -12,20 +12,30 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('order_items', function (Blueprint $table) {
+
             $table->uuid('id')->primary();
+
             $table->foreignUuid('order_id')
                 ->constrained('orders')
                 ->cascadeOnDelete();
-            $table->foreignUuid('product_id')
-                ->constrained('products')
-                ->restrictOnDelete();
+
+            // ✅ supaya produk bisa dihapus tapi order_items tetap ada
+            $table->uuid('product_id')->nullable();
+            $table->foreign('product_id')
+                ->references('id')
+                ->on('products')
+                ->nullOnDelete();
+
             $table->foreignUuid('seller_id')
                 ->constrained('users')
                 ->restrictOnDelete();
+
             $table->unsignedInteger('qty');
             $table->unsignedBigInteger('price');
             $table->unsignedBigInteger('subtotal');
+
             $table->timestamps();
+
             $table->index('order_id');
             $table->index('seller_id');
         });

@@ -20,6 +20,97 @@
             </div>
         @endif
     </div>
+{{-- SUMMARY CARDS --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+    {{-- Total User + Breakdown Role --}}
+    <div class="bg-white rounded-2xl shadow p-4 sm:p-5">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <p class="text-xs text-gray-500">Total User</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">
+                    {{ $stats['total'] }}
+                </p>
+                <p class="text-[11px] text-gray-400 mt-1">Mengikuti filter saat ini</p>
+            </div>
+
+            <span class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                <i class="fas fa-users"></i>
+            </span>
+        </div>
+
+        @php
+            $roleLabels = [
+                'super_admin' => 'Super Admin',
+                'admin' => 'Admin',
+                'seller' => 'Seller',
+                'buyer' => 'Buyer',
+            ];
+        @endphp
+
+        <div class="mt-4 space-y-2">
+            @foreach ($roleLabels as $key => $label)
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600">{{ $label }}</span>
+                    <span class="font-semibold text-gray-800">{{ $stats['roles'][$key] ?? 0 }}</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Active --}}
+    <div class="bg-white rounded-2xl shadow p-4 sm:p-5">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <p class="text-xs text-gray-500">User Active</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">
+                    {{ $stats['active'] }}
+                </p>
+                <p class="text-[11px] text-gray-400 mt-1">Status: active</p>
+            </div>
+
+            <span class="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0">
+                <i class="fas fa-check-circle"></i>
+            </span>
+        </div>
+
+        <div class="mt-4">
+            <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                @php
+                    $percent = ($stats['total'] > 0) ? round(($stats['active'] / $stats['total']) * 100) : 0;
+                @endphp
+                <div class="h-full bg-green-500" style="width: {{ $percent }}%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">{{ $percent }}% dari total</p>
+        </div>
+    </div>
+
+    {{-- Inactive (opsional tapi enak) --}}
+    <div class="bg-white rounded-2xl shadow p-4 sm:p-5">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <p class="text-xs text-gray-500">User Inactive</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">
+                    {{ $stats['inactive'] }}
+                </p>
+                <p class="text-[11px] text-gray-400 mt-1">Status: inactive</p>
+            </div>
+
+            <span class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+                <i class="fas fa-times-circle"></i>
+            </span>
+        </div>
+
+        <div class="mt-4">
+            <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                @php
+                    $percentIn = ($stats['total'] > 0) ? round(($stats['inactive'] / $stats['total']) * 100) : 0;
+                @endphp
+                <div class="h-full bg-gray-500" style="width: {{ $percentIn }}%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">{{ $percentIn }}% dari total</p>
+        </div>
+    </div>
+</div>
 
     {{-- FILTER --}}
     <div class="bg-white rounded-2xl shadow p-4 sm:p-5">
