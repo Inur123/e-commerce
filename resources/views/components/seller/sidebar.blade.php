@@ -38,11 +38,19 @@
             Produk
         </a>
 
-        <a href="#"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-100 transition">
+        <a href="{{ route('seller.orders') }}" wire:navigate
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
+    {{ request()->routeIs('seller.orders') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100' }}">
             <i class="fas fa-receipt w-5 text-center"></i>
             Transaksi
         </a>
+        <a href="{{ route('seller.vouchers') }}" wire:navigate
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
+    {{ request()->routeIs('seller.vouchers') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100' }}">
+            <i class="fas fa-ticket w-5 text-center"></i>
+            Voucher
+        </a>
+
     </nav>
 
     {{-- ✅ BOTTOM --}}

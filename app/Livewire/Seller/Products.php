@@ -49,8 +49,14 @@ class Products extends Component
         'thumbnailUpload.required' => 'Thumbnail wajib diupload',
     ];
 
-    public function updatingSearch() { $this->resetPage(); }
-    public function updatingFilterStatus() { $this->resetPage(); }
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
+    }
 
     public function mount()
     {
@@ -59,10 +65,6 @@ class Products extends Component
         }
     }
 
-    /**
-     * ✅ Guard: produk ACTIVE tidak boleh dihapus
-     * (Edit tetap boleh)
-     */
     private function denyDeleteIfActive(Product $p): bool
     {
         if ($p->status === 'active') {
@@ -74,9 +76,6 @@ class Products extends Component
         return false;
     }
 
-    // =========================
-    // Actions
-    // =========================
     public function create()
     {
         $this->resetForm();
@@ -98,7 +97,7 @@ class Products extends Component
 
         $this->detailGallery = $p->images
             ->sortBy('sort_order')
-            ->map(fn ($img) => asset('storage/' . $img->image_path))
+            ->map(fn($img) => asset('storage/' . $img->image_path))
             ->values()
             ->toArray();
 
@@ -155,7 +154,7 @@ class Products extends Component
         // ✅ samakan url image: asset('storage/...')
         $this->existingImages = $p->images
             ->sortBy('sort_order')
-            ->map(fn ($img) => [
+            ->map(fn($img) => [
                 'id' => $img->id,
                 'image_path' => $img->image_path,
                 'url' => asset('storage/' . $img->image_path),
@@ -216,42 +215,42 @@ class Products extends Component
         $this->dispatch('swal:confirm-delete');
     }
 
-   public function delete()
-{
-    if (!$this->deleteId) return;
+    public function delete()
+    {
+        if (!$this->deleteId) return;
 
-    $p = Product::where('seller_id', Auth::id())
-        ->with('images')
-        ->findOrFail($this->deleteId);
+        $p = Product::where('seller_id', Auth::id())
+            ->with('images')
+            ->findOrFail($this->deleteId);
 
-    // ✅ Block delete kalau ACTIVE
-    if ($this->denyDeleteIfActive($p)) {
-        $this->deleteId = null;
-        return;
-    }
-
-    // ✅ Hapus file thumbnail
-    if ($p->thumbnail && Storage::disk('public')->exists($p->thumbnail)) {
-        Storage::disk('public')->delete($p->thumbnail);
-    }
-
-    // ✅ Hapus file gallery
-    foreach ($p->images as $img) {
-        if (Storage::disk('public')->exists($img->image_path)) {
-            Storage::disk('public')->delete($img->image_path);
+        // ✅ Block delete kalau ACTIVE
+        if ($this->denyDeleteIfActive($p)) {
+            $this->deleteId = null;
+            return;
         }
-        $img->delete(); // hapus row image
+
+        // ✅ Hapus file thumbnail
+        if ($p->thumbnail && Storage::disk('public')->exists($p->thumbnail)) {
+            Storage::disk('public')->delete($p->thumbnail);
+        }
+
+        // ✅ Hapus file gallery
+        foreach ($p->images as $img) {
+            if (Storage::disk('public')->exists($img->image_path)) {
+                Storage::disk('public')->delete($img->image_path);
+            }
+            $img->delete(); // hapus row image
+        }
+
+        // ✅ Delete produk
+        // FK order_items product_id -> NULL otomatis karena nullOnDelete()
+        $p->delete();
+
+        session()->flash('success', 'Produk berhasil dihapus.');
+        $this->dispatch('swal:done', type: 'success', message: 'Produk berhasil dihapus.');
+
+        $this->deleteId = null;
     }
-
-    // ✅ Delete produk
-    // FK order_items product_id -> NULL otomatis karena nullOnDelete()
-    $p->delete();
-
-    session()->flash('success', 'Produk berhasil dihapus.');
-    $this->dispatch('swal:done', type: 'success', message: 'Produk berhasil dihapus.');
-
-    $this->deleteId = null;
-}
 
 
     public function back()
@@ -260,17 +259,23 @@ class Products extends Component
         $this->resetForm();
     }
 
-    // =========================
-    // Helpers
-    // =========================
     private function resetForm()
     {
         $this->reset([
-            'productId','deleteId',
-            'name','price','sale_price','stock','status','description',
-            'thumbnailUpload','thumbnailPath',
-            'galleryUploads','existingImages',
-            'detailGallery','detailThumbnailUrl',
+            'productId',
+            'deleteId',
+            'name',
+            'price',
+            'sale_price',
+            'stock',
+            'status',
+            'description',
+            'thumbnailUpload',
+            'thumbnailPath',
+            'galleryUploads',
+            'existingImages',
+            'detailGallery',
+            'detailThumbnailUrl',
         ]);
 
         $this->stock = 0;
@@ -281,26 +286,26 @@ class Products extends Component
     private function rulesCreate(): array
     {
         return [
-            'name' => ['required','string','max:150'],
-            'price' => ['required','integer','min:0'],
-            'sale_price' => ['nullable','integer','min:0','lte:price'],
-            'stock' => ['required','integer','min:0'],
-            'status' => ['required', Rule::in(['active','inactive'])],
-            'thumbnailUpload' => ['required','image','max:2048'],
-            'galleryUploads.*' => ['nullable','image','max:2048'],
+            'name' => ['required', 'string', 'max:150'],
+            'price' => ['required', 'integer', 'min:0'],
+            'sale_price' => ['nullable', 'integer', 'min:0', 'lte:price'],
+            'stock' => ['required', 'integer', 'min:0'],
+            'status' => ['required', Rule::in(['active', 'inactive'])],
+            'thumbnailUpload' => ['required', 'image', 'max:2048'],
+            'galleryUploads.*' => ['nullable', 'image', 'max:2048'],
         ];
     }
 
     private function rulesEdit(): array
     {
         return [
-            'name' => ['required','string','max:150'],
-            'price' => ['required','integer','min:0'],
-            'sale_price' => ['nullable','integer','min:0','lte:price'],
-            'stock' => ['required','integer','min:0'],
-            'status' => ['required', Rule::in(['active','inactive'])],
-            'thumbnailUpload' => ['nullable','image','max:2048'],
-            'galleryUploads.*' => ['nullable','image','max:2048'],
+            'name' => ['required', 'string', 'max:150'],
+            'price' => ['required', 'integer', 'min:0'],
+            'sale_price' => ['nullable', 'integer', 'min:0', 'lte:price'],
+            'stock' => ['required', 'integer', 'min:0'],
+            'status' => ['required', Rule::in(['active', 'inactive'])],
+            'thumbnailUpload' => ['nullable', 'image', 'max:2048'],
+            'galleryUploads.*' => ['nullable', 'image', 'max:2048'],
         ];
     }
 
@@ -320,16 +325,12 @@ class Products extends Component
 
         $this->galleryUploads = [];
     }
-
-    // =========================
-    // Render
-    // =========================
     public function render()
     {
         $filtered = Product::query()
             ->where('seller_id', Auth::id())
-            ->when($this->search, fn($q) => $q->where('name','like',"%{$this->search}%"))
-            ->when($this->filterStatus, fn($q) => $q->where('status',$this->filterStatus));
+            ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
+            ->when($this->filterStatus, fn($q) => $q->where('status', $this->filterStatus));
 
         $products = (clone $filtered)->latest()->paginate(10);
 
@@ -343,9 +344,9 @@ class Products extends Component
 
         $stats = [
             'total' => (clone $filtered)->count(),
-            'active' => (clone $filtered)->where('status','active')->count(),
-            'inactive' => (clone $filtered)->where('status','inactive')->count(),
-            'out_of_stock' => (clone $filtered)->where('stock',0)->count(),
+            'active' => (clone $filtered)->where('status', 'active')->count(),
+            'inactive' => (clone $filtered)->where('status', 'inactive')->count(),
+            'out_of_stock' => (clone $filtered)->where('stock', 0)->count(),
         ];
 
         return match ($this->action) {

@@ -1,4 +1,3 @@
-{{-- resources/views/livewire/seller/product/edit.blade.php --}}
 <div class="w-full space-y-4 sm:space-y-6">
     {{-- HEADER --}}
     <div class="flex items-start justify-between gap-3">
@@ -51,34 +50,81 @@
                 <input type="text" wire:model.defer="name"
                     class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
                            focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
-                @error('name') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                @error('name')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
             </div>
 
-            {{-- Harga / Sale / Stock --}}
+            {{-- Harga / Diskon / Stock --}}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
+
+                {{-- ✅ Harga Pakai Alpine --}}
+                <div x-data="{
+                    raw: @entangle('price').live,
+                    format(val) {
+                        val = String(val ?? '').replace(/\D/g, '');
+                        return val ? val.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+                    }
+                }">
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Harga</label>
-                    <input type="number" wire:model.defer="price"
+
+                    <input type="text" inputmode="numeric" x-bind:value="format(raw)"
+                        x-on:input="
+                            raw = $event.target.value.replace(/\D/g,'');
+                            $event.target.value = format(raw);
+                        "
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
                                focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
-                    @error('price') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+
+                    @error('price')
+                        <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Harga Diskon (opsional)</label>
-                    <input type="number" wire:model.defer="sale_price"
+                {{-- ✅ Harga Diskon Pakai Alpine --}}
+                <div x-data="{
+                    raw: @entangle('sale_price').live,
+                    format(val) {
+                        val = String(val ?? '').replace(/\D/g, '');
+                        return val ? val.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+                    }
+                }">
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                        Harga Diskon (opsional)
+                    </label>
+
+                    <input type="text" inputmode="numeric" x-bind:value="format(raw)"
+                        x-on:input="
+                            raw = $event.target.value.replace(/\D/g,'');
+                            $event.target.value = format(raw);
+                        "
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
                                focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
-                    @error('sale_price') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+
+                    @error('sale_price')
+                        <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <div>
+                {{-- Stock --}}
+                <div x-data="{
+                    raw: '',
+                }" x-init="raw = @js($stock)">
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Stok</label>
-                    <input type="number" wire:model.defer="stock"
+
+                    <input type="text" inputmode="numeric" x-model="raw"
+                        @input="
+            raw = raw.replace(/\D/g,'');
+        " @blur="$wire.set('stock', raw)"
+                        placeholder="10"
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
-                               focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
-                    @error('stock') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+               focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
+
+                    @error('stock')
+                        <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                    @enderror
                 </div>
+
             </div>
 
             {{-- Status --}}
@@ -90,7 +136,9 @@
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                 </select>
-                @error('status') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                @error('status')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
             </div>
 
             {{-- Deskripsi --}}
@@ -99,7 +147,9 @@
                 <textarea wire:model.defer="description" rows="4"
                     class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
                            focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none"></textarea>
-                @error('description') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                @error('description')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
             </div>
 
             {{-- Thumbnail --}}
@@ -109,11 +159,8 @@
                 <div class="flex items-start gap-4">
                     <div class="shrink-0">
                         <p class="text-xs text-gray-500 mb-2">Saat ini:</p>
-                        <img
-                            src="{{ $product->thumbnail ? asset('storage/'.$product->thumbnail) : 'https://via.placeholder.com/80' }}"
-                            class="w-24 h-24 rounded-xl object-cover border"
-                            alt="thumbnail"
-                        >
+                        <img src="{{ $product->thumbnail ? asset('storage/' . $product->thumbnail) : 'https://via.placeholder.com/80' }}"
+                            class="w-24 h-24 rounded-xl object-cover border" alt="thumbnail">
                     </div>
 
                     <div class="flex-1">
@@ -122,12 +169,15 @@
                             class="w-full text-sm file:mr-4 file:py-2 file:px-4
                                    file:rounded-xl file:border-0 file:text-sm file:font-semibold
                                    file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-                        @error('thumbnailUpload') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                        @error('thumbnailUpload')
+                            <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                        @enderror
 
                         @if ($thumbnailUpload)
                             <div class="mt-3">
                                 <p class="text-xs text-gray-500 mb-2">Preview baru:</p>
-                                <img src="{{ $thumbnailUpload->temporaryUrl() }}" class="w-24 h-24 rounded-xl object-cover border">
+                                <img src="{{ $thumbnailUpload->temporaryUrl() }}"
+                                    class="w-24 h-24 rounded-xl object-cover border">
                             </div>
                         @endif
                     </div>
@@ -136,14 +186,15 @@
 
             {{-- Gallery --}}
             <div>
-                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Foto Produk (Gallery, opsional)</label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                    Foto Produk (Gallery, opsional)
+                </label>
 
-                {{-- existing --}}
                 @if (!empty($existingImages))
                     <p class="text-xs text-gray-500 mb-2">Gallery saat ini:</p>
                     <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-3">
                         @foreach ($existingImages as $img)
-                            <img src="{{ asset('storage/'.$img['image_path']) }}" class="w-full aspect-square rounded-xl object-cover border" alt="gallery">
+                            <img src="{{ $img['url'] }}" class="w-full aspect-square rounded-xl object-cover border">
                         @endforeach
                     </div>
                 @endif
@@ -152,13 +203,16 @@
                     class="w-full text-sm file:mr-4 file:py-2 file:px-4
                            file:rounded-xl file:border-0 file:text-sm file:font-semibold
                            file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
-                @error('galleryUploads.*') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                @error('galleryUploads.*')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
 
                 @if (!empty($galleryUploads))
                     <p class="text-xs text-gray-500 mt-3 mb-2">Preview tambahan:</p>
                     <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
                         @foreach ($galleryUploads as $img)
-                            <img src="{{ $img->temporaryUrl() }}" class="w-full aspect-square rounded-xl object-cover border">
+                            <img src="{{ $img->temporaryUrl() }}"
+                                class="w-full aspect-square rounded-xl object-cover border">
                         @endforeach
                     </div>
                 @endif
@@ -174,9 +228,11 @@
                 <button type="button" wire:click="update" wire:loading.attr="disabled"
                     class="px-5 py-2.5 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition text-sm font-medium">
                     <span wire:loading.remove wire:target="update"><i class="fas fa-save mr-2"></i>Update</span>
-                    <span wire:loading wire:target="update"><i class="fas fa-spinner fa-spin mr-2"></i>Mengupdate...</span>
+                    <span wire:loading wire:target="update"><i
+                            class="fas fa-spinner fa-spin mr-2"></i>Mengupdate...</span>
                 </button>
             </div>
+
         </div>
     </div>
 </div>

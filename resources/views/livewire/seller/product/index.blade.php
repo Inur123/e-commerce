@@ -31,7 +31,8 @@
                     <p class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">{{ $stats['total'] }}</p>
                     <p class="text-[11px] text-gray-400 mt-1">Mengikuti filter saat ini</p>
                 </div>
-                <span class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                <span
+                    class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
                     <i class="fas fa-box"></i>
                 </span>
             </div>
@@ -168,17 +169,20 @@
 
                                 <div class="flex flex-wrap items-center gap-2 mt-3">
                                     @if ($p->status === 'active')
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
                                             <i class="fas fa-check-circle mr-1"></i>Active
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                                             <i class="fas fa-times-circle mr-1"></i>Inactive
                                         </span>
                                     @endif
 
                                     @if ((int) $p->stock === 0)
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700">
                                             <i class="fas fa-triangle-exclamation mr-1"></i>Stok Habis
                                         </span>
                                     @endif
@@ -195,7 +199,8 @@
 
                             {{-- ✅ Edit selalu ada --}}
                             <button type="button" wire:click="edit('{{ $p->id }}')"
-                                class="text-yellow-600 hover:text-yellow-800 transition cursor-pointer" title="Edit">
+                                class="text-yellow-600 hover:text-yellow-800 transition cursor-pointer"
+                                title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
 
@@ -234,13 +239,21 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-16">No</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Foto</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Nama</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Harga</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Stok</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Aksi</th>
+                        <th
+                            class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-16">
+                            No</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Foto</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Nama</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Harga</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Stok</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Aksi</th>
                     </tr>
                 </thead>
 
@@ -252,8 +265,7 @@
                             </td>
 
                             <td class="px-4 py-3 whitespace-nowrap">
-                                <img src="{{ $p->thumbnail_url }}"
-                                    alt="thumbnail"
+                                <img src="{{ $p->thumbnail_url }}" alt="thumbnail"
                                     class="w-12 h-12 rounded-xl object-cover border border-gray-100" />
                             </td>
 
@@ -274,7 +286,8 @@
                             <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
                                 {{ $p->stock }}
                                 @if ((int) $p->stock === 0)
-                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-50 text-red-700">
+                                    <span
+                                        class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-50 text-red-700">
                                         <i class="fas fa-triangle-exclamation mr-1"></i>Habis
                                     </span>
                                 @endif
@@ -282,11 +295,13 @@
 
                             <td class="px-4 py-3 text-sm whitespace-nowrap">
                                 @if ($p->status === 'active')
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
                                         <i class="fas fa-check-circle mr-1"></i>Active
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                                         <i class="fas fa-times-circle mr-1"></i>Inactive
                                     </span>
                                 @endif
@@ -360,8 +375,11 @@
                         $end = min($last, $current + 2);
 
                         if ($end - $start < 4) {
-                            if ($start == 1) $end = min($last, $start + 4);
-                            elseif ($end == $last) $start = max(1, $end - 4);
+                            if ($start == 1) {
+                                $end = min($last, $start + 4);
+                            } elseif ($end == $last) {
+                                $start = max(1, $end - 4);
+                            }
                         }
                     @endphp
 
@@ -381,7 +399,8 @@
                                 {{ $pg }}
                             </span>
                         @else
-                            <button type="button" wire:click="gotoPage({{ $pg }})" wire:loading.attr="disabled"
+                            <button type="button" wire:click="gotoPage({{ $pg }})"
+                                wire:loading.attr="disabled"
                                 class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition cursor-pointer">
                                 {{ $pg }}
                             </button>
@@ -392,7 +411,8 @@
                         @if ($end < $last - 1)
                             <span class="px-3 py-2 text-sm text-gray-400">...</span>
                         @endif
-                        <button type="button" wire:click="gotoPage({{ $last }})" wire:loading.attr="disabled"
+                        <button type="button" wire:click="gotoPage({{ $last }})"
+                            wire:loading.attr="disabled"
                             class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition cursor-pointer">
                             {{ $last }}
                         </button>
@@ -431,7 +451,10 @@
                 });
             });
 
-            Livewire.on('swal:done', ({ type, message }) => {
+            Livewire.on('swal:done', ({
+                type,
+                message
+            }) => {
                 Swal.fire({
                     icon: type ?? 'success',
                     title: (type === 'error') ? 'Gagal' : 'Berhasil',
@@ -442,4 +465,5 @@
             });
         });
     </script>
+
 </div>

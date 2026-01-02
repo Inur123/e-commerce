@@ -1,5 +1,6 @@
 {{-- resources/views/livewire/seller/product/create.blade.php --}}
 <div class="w-full space-y-4 sm:space-y-6">
+
     {{-- HEADER --}}
     <div class="flex items-start justify-between gap-3">
         <div>
@@ -38,40 +39,95 @@
         </div>
 
         <div class="p-4 sm:p-6 space-y-5">
+
             {{-- Nama --}}
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Nama Produk</label>
                 <input type="text" wire:model.defer="name" placeholder="Contoh: Sepatu Running"
                     class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
                            focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
-                @error('name') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                @error('name')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
             </div>
 
-            {{-- Harga / Sale / Stock --}}
+            {{-- Harga / Diskon / Stock --}}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
+
+                {{-- ✅ Harga --}}
+                {{-- ✅ Harga --}}
+                <div x-data="{
+                    raw: @entangle('price').live,
+                    format(val) {
+                        val = String(val ?? '').replace(/\D/g, '');
+                        return val ? val.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+                    }
+                }">
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Harga</label>
-                    <input type="number" wire:model.defer="price" placeholder="100000"
+
+                    <input type="text" inputmode="numeric" x-bind:value="format(raw)"
+                        x-on:input="
+            raw = $event.target.value.replace(/\D/g,'');
+            $event.target.value = format(raw);
+        "
+                        placeholder="100000"
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
-                               focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
-                    @error('price') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+               focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
+
+                    @error('price')
+                        <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Harga Diskon (opsional)</label>
-                    <input type="number" wire:model.defer="sale_price" placeholder="90000"
+
+                {{-- ✅ Harga Diskon --}}
+                {{-- ✅ Sale Price --}}
+                <div x-data="{
+                    raw: @entangle('sale_price').live,
+                    format(val) {
+                        val = String(val ?? '').replace(/\D/g, '');
+                        return val ? val.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+                    }
+                }">
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Harga Diskon
+                        (opsional)</label>
+
+                    <input type="text" inputmode="numeric" x-bind:value="format(raw)"
+                        x-on:input="
+            raw = $event.target.value.replace(/\D/g,'');
+            $event.target.value = format(raw);
+        "
+                        placeholder="90000"
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
-                               focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
-                    @error('sale_price') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+               focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
+
+                    @error('sale_price')
+                        <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <div>
+
+                {{-- Stock --}}
+                <div x-data="{
+                    raw: @entangle('stock').live
+                }">
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Stok</label>
-                    <input type="number" wire:model.defer="stock" placeholder="10"
+
+                    <input type="text" inputmode="numeric" x-bind:value="raw"
+                        x-on:input="
+            raw = $event.target.value.replace(/\D/g,'');
+            $event.target.value = raw;
+        "
+                        placeholder="10"
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
-                               focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
-                    @error('stock') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+               focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none">
+
+                    @error('stock')
+                        <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                    @enderror
                 </div>
+
+
             </div>
 
             {{-- Status --}}
@@ -83,7 +139,9 @@
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                 </select>
-                @error('status') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                @error('status')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
             </div>
 
             {{-- Deskripsi --}}
@@ -92,7 +150,9 @@
                 <textarea wire:model.defer="description" rows="4" placeholder="Tulis deskripsi produk..."
                     class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm
                            focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none"></textarea>
-                @error('description') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                @error('description')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
             </div>
 
             {{-- Thumbnail --}}
@@ -102,31 +162,38 @@
                     class="w-full text-sm file:mr-4 file:py-2 file:px-4
                            file:rounded-xl file:border-0 file:text-sm file:font-semibold
                            file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-                @error('thumbnailUpload') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                @error('thumbnailUpload')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
 
                 {{-- Preview --}}
                 @if ($thumbnailUpload)
                     <div class="mt-3">
                         <p class="text-xs text-gray-500 mb-2">Preview:</p>
-                        <img src="{{ $thumbnailUpload->temporaryUrl() }}" class="w-24 h-24 rounded-xl object-cover border">
+                        <img src="{{ $thumbnailUpload->temporaryUrl() }}"
+                            class="w-24 h-24 rounded-xl object-cover border">
                     </div>
                 @endif
             </div>
 
             {{-- Gallery --}}
             <div>
-                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Foto Produk (Gallery, opsional)</label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Foto Produk (Gallery,
+                    opsional)</label>
                 <input type="file" wire:model="galleryUploads" accept="image/*" multiple
                     class="w-full text-sm file:mr-4 file:py-2 file:px-4
                            file:rounded-xl file:border-0 file:text-sm file:font-semibold
                            file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
-                @error('galleryUploads.*') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                @error('galleryUploads.*')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
 
                 {{-- Preview gallery --}}
                 @if (!empty($galleryUploads))
                     <div class="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-2">
                         @foreach ($galleryUploads as $img)
-                            <img src="{{ $img->temporaryUrl() }}" class="w-full aspect-square rounded-xl object-cover border">
+                            <img src="{{ $img->temporaryUrl() }}"
+                                class="w-full aspect-square rounded-xl object-cover border">
                         @endforeach
                     </div>
                 @endif
@@ -145,6 +212,7 @@
                     <span wire:loading wire:target="save"><i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...</span>
                 </button>
             </div>
+
         </div>
     </div>
 </div>

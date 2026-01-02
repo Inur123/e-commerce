@@ -38,11 +38,8 @@
         <div class="p-4 sm:p-6 space-y-6">
             {{-- Top --}}
             <div class="flex flex-col sm:flex-row gap-5">
-                <img
-                    src="{{ $product->thumbnail ? asset('storage/'.$product->thumbnail) : 'https://via.placeholder.com/240' }}"
-                    class="w-full sm:w-64 h-64 rounded-2xl object-cover border"
-                    alt="thumbnail"
-                >
+                <img src="{{ $product->thumbnail ? asset('storage/' . $product->thumbnail) : 'https://via.placeholder.com/240' }}"
+                    class="w-full sm:w-64 h-64 rounded-2xl object-cover border" alt="thumbnail">
 
                 <div class="flex-1 space-y-3">
                     <div>
@@ -59,12 +56,13 @@
                         <div class="p-4 rounded-2xl bg-gray-50 border">
                             <p class="text-xs text-gray-500">Harga Diskon</p>
                             <p class="text-base font-semibold text-gray-800">
-                                {{ $product->sale_price ? 'Rp'.number_format($product->sale_price) : '-' }}
+                                {{ $product->sale_price ? 'Rp' . number_format($product->sale_price) : '-' }}
                             </p>
                         </div>
                         <div class="p-4 rounded-2xl bg-gray-50 border">
                             <p class="text-xs text-gray-500">Harga Final</p>
-                            <p class="text-base font-semibold text-gray-800">Rp{{ number_format($product->finalPrice()) }}</p>
+                            <p class="text-base font-semibold text-gray-800">
+                                Rp{{ number_format($product->finalPrice()) }}</p>
                         </div>
                         <div class="p-4 rounded-2xl bg-gray-50 border">
                             <p class="text-xs text-gray-500">Stok</p>
@@ -88,9 +86,8 @@
                     <p class="text-sm font-semibold text-gray-800 mb-2">Gallery</p>
                     <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
                         @foreach ($product->images()->orderBy('sort_order')->get() as $img)
-                            <img src="{{ asset('storage/'.$img->image_path) }}"
-                                class="w-full aspect-square rounded-2xl object-cover border"
-                                alt="gallery">
+                            <img src="{{ asset('storage/' . $img->image_path) }}"
+                                class="w-full aspect-square rounded-2xl object-cover border" alt="gallery">
                         @endforeach
                     </div>
                 </div>

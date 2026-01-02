@@ -8,13 +8,14 @@ use App\Livewire\Landingpage\Home;
 
 use App\Livewire\SuperAdmin\Dashboard as SuperAdminDashboard;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
-use App\Livewire\Seller\Dashboard as SellerDashboard;
-use App\Livewire\Buyer\Dashboard as BuyerDashboard;
-
 use App\Livewire\SuperAdmin\Users as SuperAdminUsers; // ✅ tambah ini
 
+use App\Livewire\Buyer\Dashboard as BuyerDashboard;
 
+use App\Livewire\Seller\Dashboard as SellerDashboard;
 use App\Livewire\Seller\Products as SellerProducts;
+use App\Livewire\Seller\Orders as SellerOrders;
+use App\Livewire\Seller\Vouchers as SellerVouchers;
 
 Route::get('/', Home::class)->name('home');
 
@@ -46,9 +47,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/seller/dashboard', SellerDashboard::class)
             ->name('seller.dashboard');
 
-        // CRUD PRODUCT
         Route::get('/seller/products', SellerProducts::class)
             ->name('seller.products');
+
+        Route::get('/seller/orders', SellerOrders::class)
+        ->name('seller.orders');
+
+         Route::get('/seller/vouchers', SellerVouchers::class)
+        ->name('seller.vouchers');
     });
 
     Route::middleware(['role:buyer'])
