@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,26 +8,24 @@
     <title>{{ $title ?? 'Super Admin - Martku' }}</title>
     <link rel="icon" type="image/webp" href="{{ asset('images/logo.webp') }}">
 
-    @vite(['resources/css/app.css','resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @livewireStyles
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        [x-cloak]{ display:none !important; }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
 <body class="bg-gray-100 overflow-hidden" x-data="{ sidebarOpen: false }">
 
     {{-- Overlay Mobile --}}
-    <div
-        x-show="sidebarOpen"
-        x-transition.opacity
-        @click="sidebarOpen = false"
-        class="fixed inset-0 bg-black/40 z-40 lg:hidden"
-        x-cloak
-    ></div>
+    <div x-show="sidebarOpen" x-transition.opacity @click="sidebarOpen = false"
+        class="fixed inset-0 bg-black/40 z-40 lg:hidden" x-cloak></div>
 
     <div class="h-screen flex bg-gray-100">
 
@@ -52,4 +51,5 @@
 
     @livewireScripts
 </body>
+
 </html>
